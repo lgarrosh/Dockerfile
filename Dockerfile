@@ -1,9 +1,19 @@
 FROM python:3
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y git && apt-get clean
+ENV PYTHONPATH=/app
 
-RUN git clone -b docker_version https://github.com/lgarrosh/Telegram_bot.git
+# Устанавливаем необходимые утилиты, включая Git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN ./run.sh
+# Клонируем ветку docker_version из репозитория
+RUN git clone --branch docker_version --single-branch https://github.com/lgarrosh/Telegram_bot.git .
+
+RUN pip install -r requirements.txt
+
+# Указываем команду для запуска приложения
+CMD ["python3", "source/main.py"]
